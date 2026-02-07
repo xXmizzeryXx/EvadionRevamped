@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#2a1b5e; --bg2:#0b0f2a; --bg3:#05070f;
+      --glass: rgba(18,20,45,.58);
+      --border: rgba(140,120,255,.18);
+      --border2: rgba(180,160,255,.35);
+      --text: rgba(230,233,255,.92);
+      --muted: rgba(200,210,255,.72);
+      --grad: linear-gradient(90deg,#9b7bff,#5ecbff);
+      --shadow: 0 0 70px rgba(120,80,255,.22);
+      --r: 22px;
+    }
+
+    *{box-sizing:border-box; margin:0; padding:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial;}
+    body{
+      min-height:100vh;
+      background: radial-gradient(circle at top, var(--bg1) 0%, var(--bg2) 42%, var(--bg3) 100%);
+      color: var(--text);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        radial-gradient(circle at 18% 25%, rgba(120,90,255,.25), transparent 42%),
+        radial-gradient(circle at 82% 70%, rgba(0,180,255,.16), transparent 48%);
+      filter: blur(60px);
+      z-index:-1;
+    }
+
+    .wrap{ width:min(1200px, 92vw); margin: 26px auto 40px; padding-bottom: 40px; }
+
+    .top{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:14px; flex-wrap:wrap; margin-bottom: 14px;
+    }
+
+    .title{
+      font-size: 34px; font-weight: 900; letter-spacing:.4px;
+      background: var(--grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      text-shadow: 0 0 24px rgba(120,80,255,.28);
+    }
+    .sub{ margin-top:6px; font-size: 13px; color: var(--muted); letter-spacing:.2px; }
+
+    .glass{
+      background: var(--glass);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      border-radius: var(--r);
+    }
+
+    .toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+    .search{
+      display:flex; align-items:center; gap:10px;
+      padding: 12px 14px; min-width: min(520px, 92vw);
+    }
+    .search input{
+      flex:1; border:none; outline:none; background:transparent;
+      color: var(--text); font-size: 14px;
+    }
+
+    .btn{
+      border: 1px solid rgba(140,120,255,.18);
+      background: rgba(255,255,255,.05);
+      color: rgba(230,233,255,.92);
+      height: 40px; padding: 0 14px; border-radius: 999px;
+      cursor:pointer; display:inline-flex; align-items:center; gap:10px;
+      user-select:none;
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease, opacity .16s ease;
+      white-space: nowrap;
+      font-size: 12.5px;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: var(--border2);
+      box-shadow: 0 0 18px rgba(120,80,255,.18);
+      background: rgba(255,255,255,.07);
+    }
+    .btn.primary{
+      border-color: rgba(190,160,255,.45);
+      background: rgba(155,123,255,.14);
+    }
+
+    .row{
+      margin-top: 12px;
+      padding: 10px 12px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; flex-wrap:wrap;
+    }
+
+    .meta{ font-size: 12.5px; color: rgba(200,210,255,.70); letter-spacing:.2px; }
+    .sort{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+    select{
+      height: 38px;
+      border-radius: 14px;
+      border: 1px solid rgba(140,120,255,.18);
+      background: rgba(255,255,255,.05);
+      color: rgba(230,233,255,.92);
+      padding: 0 12px;
+      outline:none;
+      cursor:pointer;
+    }
+
+    .sectionTitle{
+      margin-top: 16px;
+      padding: 12px 14px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+
+    .chips{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+      padding: 12px 12px;
+    }
+
+    .chip{
+      border: 1px solid rgba(140,120,255,.18);
+      background: rgba(255,255,255,.05);
+      color: rgba(230,233,255,.90);
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;
+      white-space:nowrap;
+      font-size: 12.5px;
+      opacity: .9;
+    }
+    .chip:hover{
+      transform: translateY(-1px);
+      border-color: var(--border2);
+      box-shadow: 0 0 18px rgba(120,80,255,.18);
+      background: rgba(255,255,255,.07);
+    }
+    .chip.active{
+      opacity: 1;
+      border-color: rgba(190,160,255,.55);
+      background: rgba(155,123,255,.16);
+    }
+
+    .grid{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 1050px){ .grid{ grid-template-columns: repeat(3, 1fr);} }
+    @media (max-width: 780px){ .grid{ grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 520px){ .grid{ grid-template-columns: 1fr;} .search{ min-width: 92vw;} }
+
+    .card{
+      padding: 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+      min-height: 112px;
+      overflow:hidden;
+    }
+    .card:hover{
+      transform: translateY(-3px);
+      border-color: var(--border2);
+      box-shadow: 0 0 24px rgba(120,80,255,.22);
+      background: rgba(255,255,255,.06);
+    }
+
+    .name{
+      font-weight: 900;
+      letter-spacing:.2px;
+      font-size: 15px;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .path{
+      font-size: 11px;
+      color: rgba(200,210,255,.55);
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+
+    .btnRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+
+    .fav{
+      width: 40px; height: 40px;
+      border-radius: 14px;
+      border: 1px solid rgba(140,120,255,.18);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+      display:grid; place-items:center;
+      color: rgba(230,233,255,.82);
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;
+      user-select:none;
+      flex: 0 0 auto;
+      font-size: 16px;
+    }
+    .fav:hover{
+      transform: translateY(-1px);
+      border-color: var(--border2);
+      box-shadow: 0 0 18px rgba(120,80,255,.18);
+      background: rgba(255,255,255,.07);
+    }
+    .fav.on{
+      color: rgba(255,215,120,.95);
+      border-color: rgba(255,215,120,.35);
+    }
+
+    .empty{
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px dashed rgba(140,120,255,.25);
+      background: rgba(255,255,255,.03);
+      color: rgba(200,210,255,.75);
+      text-align:center;
+      display:none;
+    }
+
+    /* Player Modal */
+    .modal{
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,.62);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .22s ease;
+    }
+    .modal.show{ opacity:1; pointer-events:auto; }
+
+    .player{
+      width: min(1200px, 96vw);
+      height: min(720px, 84vh);
+      border-radius: 24px;
+      border: 1px solid rgba(190,160,255,.35);
+      background: rgba(18,20,45,.62);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 0 70px rgba(120,80,255,.28);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .playerTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(140,120,255,.18);
+    }
+    .playerTitle{
+      font-weight: 900;
+      letter-spacing:.2px;
+      min-width: 0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width: 70vw;
+    }
+    .playerBtns{ display:flex; gap:10px; }
+    .iconBtn{
+      width: 40px; height: 40px; border-radius: 14px;
+      border: 1px solid rgba(140,120,255,.18);
+      background: rgba(255,255,255,.05);
+      color: rgba(230,233,255,.9);
+      cursor:pointer; display:grid; place-items:center; user-select:none;
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+    .iconBtn:hover{
+      transform: translateY(-1px);
+      border-color: var(--border2);
+      box-shadow: 0 0 18px rgba(120,80,255,.18);
+      background: rgba(255,255,255,.07);
+    }
+
+    iframe{ width:100%; height:100%; border:none; background: rgba(0,0,0,.35); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="title">Games</div>
+        <div class="sub">Recently played + categories, built for your folder-based library.</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search glass">
+          <input id="q" type="text" placeholder="Search games..." autocomplete="off" spellcheck="false" />
+          <button class="iconBtn" id="clearQ" title="Clear">×</button>
+        </div>
+        <button class="btn" id="favOnlyBtn" type="button">Favorites</button>
+        <button class="btn" id="randomBtn" type="button">Random</button>
+      </div>
+    </div>
+
+    <div class="row glass">
+      <div class="meta" id="countText">0 games</div>
+      <div class="sort">
+        <span class="meta">Sort</span>
+        <select id="sortSel" aria-label="Sort">
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sectionTitle glass" style="margin-top:14px;">
+      <div>Categories</div>
+      <div class="meta" id="catText">All</div>
+    </div>
+    <div class="chips glass" id="chips"></div>
+
+    <div class="sectionTitle glass" id="recentWrap" style="display:none;">
+      <div>Recently Played</div>
+      <button class="btn" id="clearRecentBtn" type="button" style="height:36px;">Clear</button>
+    </div>
+    <div class="grid" id="recentGrid" style="display:none;"></div>
+
+    <div class="sectionTitle glass">
+      <div>All Games</div>
+      <div class="meta" id="allHint">Click Play to launch</div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+    <div class="empty glass" id="empty">No games matched your search/filter.</div>
+  </div>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="player">
+      <div class="playerTop">
+        <div class="playerTitle" id="playTitle">Game</div>
+        <div class="playerBtns">
+          <button class="iconBtn" id="openNewTab" title="Open in page">↗</button>
+          <button class="iconBtn" id="closeModal" title="Close">×</button>
+        </div>
+      </div>
+      <iframe id="playFrame" sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const GAME_LIST = [
+      { name: "10 Minutes Till Dawn", folder: "10-minutes-till-dawn" },
+      { name: "2048 Multitask", folder: "2048-multitask" },
+      { name: "2048", folder: "2048" },
+      { name: "9007199254740992", folder: "9007199254740992" },
+      { name: "A Dance Of Fire And Ice", folder: "a-dance-of-fire-and-ice" },
+      { name: "A Dark Room", folder: "a-dark-room" },
+      { name: "Adrenaline Challenge", folder: "adrenaline-challenge" },
+      { name: "Adventure Drivers", folder: "adventure-drivers" },
+      { name: "Ages Of Conflict", folder: "ages-of-conflict" },
+      { name: "Backrooms 2D", folder: "backrooms-2d" },
+      { name: "Backrooms", folder: "backrooms" },
+      { name: "Bacon May Die", folder: "bacon-may-die" },
+      { name: "Bad Ice Cream 2", folder: "bad-ice-cream-2" },
+      { name: "Bad Ice Cream 3", folder: "bad-ice-cream-3" },
+      { name: "Bad Ice Cream", folder: "bad-ice-cream" },
+      { name: "Baldis Basics", folder: "baldis-basics" },
+      { name: "Basket Random", folder: "basket-random" },
+      { name: "Bitlife", folder: "bitlife" },
+      { name: "Boxing Random", folder: "boxing-random" },
+      { name: "Btts", folder: "btts" },
+      { name: "Buckshot Roulette", folder: "buckshot-roulette" },
+      { name: "Cluster Rush", folder: "cluster-rush" },
+      { name: "Core Ball", folder: "core-ball" },
+      { name: "Creative Kill Chamber", folder: "creative-kill-chamber" },
+      { name: "Crossy Road", folder: "crossy-road" },
+      { name: "Cupcake 2048", folder: "cupcake-2048" },
+      { name: "Dante", folder: "dante" },
+      { name: "Deal Or No Deal", folder: "deal-or-no-deal" },
+      { name: "Death Run 3D", folder: "death-run-3d" },
+      { name: "Drift Boss", folder: "drift-boss" },
+      { name: "Drift Hunters", folder: "drift-hunters" },
+      { name: "Drive Mad", folder: "drive-mad" },
+      { name: "Duck Life 3", folder: "duck-life-3" },
+      { name: "Duck Life 4", folder: "duck-life-4" },
+      { name: "Eggy Car", folder: "eggy-car" },
+      { name: "Fnaw", folder: "fnaw" },
+      { name: "Funny Shooter 2", folder: "funny-shooter-2" },
+      { name: "Funny Shooter", folder: "funny-shooter" },
+      { name: "Getaway Shootout", folder: "getaway-shootout" },
+      { name: "Learn To Fly 2", folder: "learn-to-fly-2" },
+      { name: "Learn To Fly", folder: "learn-to-fly" },
+      { name: "Madalin Stunt Cars 2", folder: "madalin-stunt-cars-2" },
+      { name: "Madalin Stunt Cars 3", folder: "madalin-stunt-cars-3" },
+      { name: "Monkey Mart", folder: "monkey-mart" },
+      { name: "Motox3M 2", folder: "motox3m-2" },
+      { name: "Motox3M Pool", folder: "motox3m-pool" },
+      { name: "Motox3M Spooky", folder: "motox3m-spooky" },
+      { name: "Motox3M Winter", folder: "motox3m-winter" },
+      { name: "Motox3M", folder: "motox3m" },
+      { name: "Resent Client", folder: "resent-client" },
+      { name: "Retro Bowl", folder: "retro-bowl" },
+      { name: "Rooftop Snipers", folder: "rooftop-snipers" },
+      { name: "Run 2", folder: "run-2" },
+      { name: "Run 3", folder: "run-3" },
+      { name: "Scrap Metal", folder: "scrap-metal" },
+      { name: "Slope 2", folder: "slope-2" },
+      { name: "Slope Ball", folder: "slope-ball" },
+      { name: "Slope", folder: "slope" },
+      { name: "Snow Rider 3D", folder: "snow-rider-3d" },
+      { name: "Soccer Random", folder: "soccer-random" },
+      { name: "Stickman Hook", folder: "stickman-hook" },
+      { name: "Super Hot", folder: "super-hot" },
+      { name: "Tanuki Sunset", folder: "tanuki-sunset" },
+      { name: "Tunnel Rush", folder: "tunnel-rush" },
+      { name: "Ultrakill", folder: "ultrakill" },
+      { name: "Vex 3", folder: "vex-3" },
+      { name: "Vex 4", folder: "vex-4" },
+      { name: "Vex 5", folder: "vex-5" },
+      { name: "Vex 6", folder: "vex-6" },
+      { name: "Vex 7", folder: "vex-7" },
+      { name: "Volley Random", folder: "volley-random" },
+      { name: "Worlds Hardest Game 2", folder: "worlds-hardest-game-2" },
+      { name: "Worlds Hardest Game", folder: "worlds-hardest-game" }
+    ];
+
+    // IMPORTANT: games.html is in root, /games/ is in root
+    function gameUrl(folder){
+      return `games/${folder}/index.html`;
+    }
+
+    const FAVORITES_KEY = "evadionrv_game_favs_v1";
+    const RECENT_KEY = "evadionrv_recent_games_v1";
+    const RECENT_MAX = 12;
+
+    const el = {
+      q: document.getElementById("q"),
+      clearQ: document.getElementById("clearQ"),
+      favOnlyBtn: document.getElementById("favOnlyBtn"),
+      randomBtn: document.getElementById("randomBtn"),
+      sortSel: document.getElementById("sortSel"),
+      countText: document.getElementById("countText"),
+      grid: document.getElementById("grid"),
+      empty: document.getElementById("empty"),
+
+      chips: document.getElementById("chips"),
+      catText: document.getElementById("catText"),
+
+      recentWrap: document.getElementById("recentWrap"),
+      recentGrid: document.getElementById("recentGrid"),
+      clearRecentBtn: document.getElementById("clearRecentBtn"),
+
+      modal: document.getElementById("modal"),
+      playFrame: document.getElementById("playFrame"),
+      playTitle: document.getElementById("playTitle"),
+      closeModal: document.getElementById("closeModal"),
+      openNewTab: document.getElementById("openNewTab"),
+    };
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll("\"","&quot;")
+        .replaceAll("'","&#39;");
+    }
+
+    function makeId(folder){ return String(folder || "").toLowerCase().trim(); }
+
+    function loadSet(key){
+      try{
+        const raw = localStorage.getItem(key);
+        const parsed = JSON.parse(raw || "[]");
+        return new Set(Array.isArray(parsed) ? parsed : []);
+      }catch{ return new Set(); }
+    }
+    function saveSet(key, set){
+      try{ localStorage.setItem(key, JSON.stringify([...set], null, 2)); }catch{}
+    }
+
+    function loadArray(key){
+      try{
+        const raw = localStorage.getItem(key);
+        const parsed = JSON.parse(raw || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      }catch{ return []; }
+    }
+    function saveArray(key, arr){
+      try{ localStorage.setItem(key, JSON.stringify(arr, null, 2)); }catch{}
+    }
+
+    let favs = loadSet(FAVORITES_KEY);
+    let favOnly = false;
+
+    // Categories
+    const CATEGORY_RULES = [
+      { name: "Racing", test: (n,f) => /drift|drive|madalin|motox3m|car|rider|scrap metal/i.test(n + " " + f) },
+      { name: "Platformer", test: (n,f) => /vex|run |run-|stickman hook|tunnel rush/i.test(n + " " + f) },
+      { name: "Sports", test: (n,f) => /bowl|soccer|basket|boxing|volley/i.test(n + " " + f) },
+      { name: "Shooter", test: (n,f) => /shooter|snipers|ultrakill|buckshot|1v1/i.test(n + " " + f) },
+      { name: "Puzzle", test: (n,f) => /2048|core ball|cupcake 2048|900719/i.test(n + " " + f) },
+      { name: "Horror", test: (n,f) => /backrooms|baldi|fnaw/i.test(n + " " + f) },
+      { name: "Chill", test: (n,f) => /tanuki|monkey|bitlife|crossy/i.test(n + " " + f) },
+    ];
+
+    function categoryFor(item){
+      const n = item.name || "";
+      const f = item.folder || "";
+      for (const rule of CATEGORY_RULES){
+        if (rule.test(n, f)) return rule.name;
+      }
+      return "Other";
+    }
+
+    const allCategories = (() => {
+      const set = new Set(["All", "Favorites"]);
+      for (const it of GAME_LIST) set.add(categoryFor(it));
+      return Array.from(set);
+    })();
+
+    let activeCategory = "All";
+
+    function renderChips(){
+      el.chips.innerHTML = "";
+      for (const c of allCategories){
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip" + (c === activeCategory ? " active" : "");
+        chip.textContent = c;
+        chip.addEventListener("click", () => {
+          activeCategory = c;
+          el.catText.textContent = c;
+          renderAll();
+        });
+        el.chips.appendChild(chip);
+      }
+    }
+
+    // Recently Played
+    function loadRecent(){
+      const arr = loadArray(RECENT_KEY);
+      return arr.filter(x => x && typeof x === "object" && x.folder).slice(0, RECENT_MAX);
+    }
+
+    function pushRecent(item){
+      const arr = loadRecent();
+      const next = [{ name: item.name, folder: item.folder, t: Date.now() }, ...arr.filter(x => x.folder !== item.folder)];
+      saveArray(RECENT_KEY, next.slice(0, RECENT_MAX));
+      renderRecent();
+    }
+
+    function renderRecent(){
+      const recent = loadRecent();
+      const show = recent.length > 0;
+
+      el.recentWrap.style.display = show ? "flex" : "none";
+      el.recentGrid.style.display = show ? "grid" : "none";
+
+      if (!show) return;
+
+      el.recentGrid.innerHTML = "";
+      for (const it of recent){
+        el.recentGrid.appendChild(buildCard(it, true));
+      }
+    }
+
+    el.clearRecentBtn.addEventListener("click", () => {
+      saveArray(RECENT_KEY, []);
+      renderRecent();
+    });
+
+    function matches(item, q){
+      if (!q) return true;
+      const n = (item.name || "").toLowerCase();
+      const f = (item.folder || "").toLowerCase();
+      return n.includes(q) || f.includes(q);
+    }
+
+    function sorted(list){
+      const mode = el.sortSel.value;
+      const arr = list.slice().sort((a,b) => (a.name||"").localeCompare(b.name||""));
+      if (mode === "za") arr.reverse();
+      return arr;
+    }
+
+    function filtered(){
+      const q = String(el.q.value || "").trim().toLowerCase();
+
+      return sorted(GAME_LIST.filter(it => {
+        const id = makeId(it.folder);
+        const cat = categoryFor(it);
+
+        if (activeCategory === "Favorites" && !favs.has(id)) return false;
+        if (activeCategory !== "All" && activeCategory !== "Favorites" && cat !== activeCategory) return false;
+
+        if (favOnly && !favs.has(id)) return false;
+        if (!matches(it, q)) return false;
+
+        return true;
+      }));
+    }
+
+    function openGame(item){
+      const url = gameUrl(item.folder);
+      el.playTitle.textContent = item.name;
+      el.playFrame.src = url;
+
+      el.modal.classList.add("show");
+      el.modal.setAttribute("aria-hidden", "false");
+
+      el.openNewTab.onclick = () => {
+        window.location.href = url;
+      };
+
+      pushRecent(item);
+    }
+
+    function closeGame(){
+      el.modal.classList.remove("show");
+      el.modal.setAttribute("aria-hidden", "true");
+      el.playFrame.src = "about:blank";
+    }
+
+    function buildCard(it, isRecent){
+      const id = makeId(it.folder);
+      const isFav = favs.has(id);
+      const url = gameUrl(it.folder);
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div class="name" title="${escapeHtml(it.name)}">${escapeHtml(it.name)}</div>
+        <div class="path" title="${escapeHtml(url)}">${escapeHtml(url)}</div>
+        <div class="btnRow">
+          <button class="btn primary" type="button">Play</button>
+          <button class="fav ${isFav ? "on" : ""}" type="button" title="Favorite">${isFav ? "★" : "☆"}</button>
+        </div>
+      `;
+
+      const playBtn = card.querySelector(".btn.primary");
+      const favBtn = card.querySelector(".fav");
+
+      playBtn.addEventListener("click", () => openGame(it));
+      favBtn.addEventListener("click", () => {
+        if (favs.has(id)) favs.delete(id);
+        else favs.add(id);
+        saveSet(FAVORITES_KEY, favs);
+
+        // update both views without reloading everything
+        if (isRecent) renderRecent();
+        renderAll();
+      });
+
+      return card;
+    }
+
+    function renderAll(){
+      const items = filtered();
+
+      el.grid.innerHTML = "";
+      el.empty.style.display = items.length ? "none" : "block";
+      el.countText.textContent = `${items.length} game${items.length === 1 ? "" : "s"}`;
+
+      for (const it of items){
+        el.grid.appendChild(buildCard(it, false));
+      }
+    }
+
+    // Wiring
+    el.clearQ.addEventListener("click", () => { el.q.value = ""; renderAll(); el.q.focus(); });
+    el.q.addEventListener("input", () => renderAll());
+    el.sortSel.addEventListener("change", () => renderAll());
+
+    el.favOnlyBtn.addEventListener("click", () => {
+      favOnly = !favOnly;
+      el.favOnlyBtn.style.opacity = favOnly ? "1" : "0.85";
+      el.favOnlyBtn.style.borderColor = favOnly ? "rgba(255,215,120,.45)" : "rgba(140,120,255,.18)";
+      renderAll();
+    });
+
+    el.randomBtn.addEventListener("click", () => {
+      const items = filtered();
+      if (!items.length) return;
+      const pick = items[Math.floor(Math.random() * items.length)];
+      openGame(pick);
+    });
+
+    el.closeModal.addEventListener("click", closeGame);
+    el.modal.addEventListener("click", (e) => { if (e.target === el.modal) closeGame(); });
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeGame(); });
+
+    // Boot
+    renderChips();
+    renderRecent();
+    renderAll();
+  </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EvadionRV</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="glass-container" id="homeView">
+    <div class="logo">EvadionRV</div>
+
+    <div class="search-bar">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="urlInput" type="text" placeholder="Search or enter a URL..." />
+    </div>
+
+    <div class="quick-links" id="quickLinks">
+      <button class="quick-btn" type="button" data-open="https://www.google.com"><i class="fa-brands fa-google"></i><span>Google</span></button>
+      <button class="quick-btn" type="button" data-open="https://www.youtube.com"><i class="fa-brands fa-youtube"></i><span>YouTube</span></button>
+      <button class="quick-btn" type="button" data-open="games.html"><i class="fa-solid fa-gamepad"></i><span>Games</span></button>
+      <button class="quick-btn" type="button" data-open="movies.html"><i class="fa-solid fa-film"></i><span>Movies</span></button>
+    </div>
+
+    <div class="bookmarkHeader">
+      <div class="bookmarkTitle">
+        <i class="fa-solid fa-bookmark"></i>
+        <span>Bookmarks</span>
+      </div>
+      <div class="bookmarkActions">
+        <button class="miniBtn" id="bmManageBtn" type="button"><i class="fa-solid fa-pen-to-square"></i>Manage</button>
+        <button class="miniBtn" id="bmExportBtn" type="button"><i class="fa-solid fa-file-export"></i>Export</button>
+        <label class="miniBtn" for="bmImportInput" style="cursor:pointer;"><i class="fa-solid fa-file-import"></i>Import</label>
+        <input id="bmImportInput" type="file" accept="application/json" style="display:none;" />
+      </div>
+    </div>
+
+    <div class="bookmarks" id="bookmarkGrid" aria-label="Bookmarks"></div>
+
+    <div class="modal" id="bmModal" aria-hidden="true">
+      <div class="modalCard" role="dialog" aria-modal="true" aria-label="Bookmark Manager">
+        <div class="modalTop">
+          <div class="modalTitle"><i class="fa-solid fa-bookmark"></i>Bookmark Manager</div>
+          <button class="iconBtn" id="bmCloseBtn" type="button" title="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="modalBody">
+          <div class="formRow">
+            <div class="field">
+              <div class="label">Name</div>
+              <input id="bmName" type="text" placeholder="Discord" />
+            </div>
+            <div class="field">
+              <div class="label">URL</div>
+              <input id="bmUrl" type="text" placeholder="https://discord.com" />
+            </div>
+            <div class="field">
+              <div class="label">Font Awesome Icon</div>
+              <input id="bmIcon" type="text" placeholder="fa-brands fa-discord" />
+            </div>
+          </div>
+
+          <div class="modalBtns">
+            <button class="pillBtn" id="bmSaveBtn" type="button"><i class="fa-solid fa-floppy-disk"></i>Save</button>
+            <button class="pillBtn" id="bmClearBtn" type="button"><i class="fa-solid fa-eraser"></i>Clear</button>
+          </div>
+
+          <div class="listTitle">Your Bookmarks</div>
+          <div class="bmList" id="bmList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">© 2026 Eclipse. All rights reserved.</div>
+  </div>
+
+  <div id="browserView" class="browser" aria-hidden="true">
+    <div class="browserTop">
+      <div class="tabBarWrap">
+        <div class="tabBar" id="tabBar" role="tablist" aria-label="Tabs"></div>
+        <button class="iconBtn" id="newTabBtn" title="New tab" aria-label="New tab"><i class="fa-solid fa-plus"></i></button>
+      </div>
+
+      <div class="toolBar">
+        <button class="iconBtn" id="backBtn" title="Back" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="iconBtn" id="forwardBtn" title="Forward" aria-label="Forward"><i class="fa-solid fa-arrow-right"></i></button>
+        <button class="iconBtn" id="reloadBtn" title="Reload" aria-label="Reload"><i class="fa-solid fa-rotate-right"></i></button>
+        <button class="iconBtn" id="historyBtn" title="History" aria-label="History"><i class="fa-solid fa-clock-rotate-left"></i></button>
+
+        <div class="omnibox">
+          <i class="fa-solid fa-lock"></i>
+          <input id="omniInput" type="text" placeholder="Search or enter a URL" autocomplete="off" spellcheck="false" />
+          <button class="iconBtn small" id="goBtn" title="Go" aria-label="Go"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+        </div>
+
+        <button class="pillBtn" id="homeBtn" title="Home"><i class="fa-solid fa-house"></i>Home</button>
+      </div>
+    </div>
+
+    <div class="frameStage">
+      <iframe id="browserFrame" referrerpolicy="no-referrer" sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"></iframe>
+      <div class="frameHint" id="frameHint" aria-live="polite">
+        <div class="hintTitle">UV Notice</div>
+        <div class="hintText">Ultraviolet may not load some sites. This is not due to our website.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="system-info" id="clock"></div>
+
+  <button class="adminFab" id="adminBtn" type="button" title="Admin" aria-label="Admin"><i class="fa-solid fa-shield-halved"></i></button>
+
+  <div class="modal" id="historyModal" aria-hidden="true">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-label="History">
+      <div class="modalTop">
+        <div class="modalTitle"><i class="fa-solid fa-clock-rotate-left"></i>History</div>
+        <button class="iconBtn" id="historyCloseBtn" type="button" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modalBody">
+        <div class="adminPanelTop historyTop">
+          <div class="omnibox historySearchWrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="historySearch" type="text" placeholder="Search history (title or URL)" autocomplete="off" spellcheck="false" />
+            <button class="iconBtn small" id="historyClearSearch" type="button" title="Clear search"><i class="fa-solid fa-eraser"></i></button>
+          </div>
+          <div class="adminPills">
+            <button class="miniBtn" id="historyExportBtn" type="button"><i class="fa-solid fa-file-export"></i>Export</button>
+            <label class="miniBtn" for="historyImportInput" style="cursor:pointer;"><i class="fa-solid fa-file-import"></i>Import</label>
+            <input id="historyImportInput" type="file" accept="application/json" style="display:none;" />
+            <button class="miniBtn" id="historyClearBtn" type="button"><i class="fa-solid fa-broom"></i>Clear All</button>
+          </div>
+        </div>
+
+        <div class="adminList" id="historyList" style="height: 420px;"></div>
+        <div class="adminMsg" id="historyMsg" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="adminModal" aria-hidden="true">
+    <div class="modalCard adminCard" role="dialog" aria-modal="true" aria-label="Admin">
+      <div class="modalTop">
+        <div class="modalTitle"><i class="fa-solid fa-shield-halved"></i>Admin</div>
+        <button class="iconBtn" id="adminCloseBtn" type="button" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modalBody">
+        <div id="adminLoginView">
+          <div class="adminRow">
+            <div class="field adminPassField">
+              <div class="label">Password</div>
+              <input id="adminPassword" type="password" placeholder="Enter password" autocomplete="current-password" />
+            </div>
+            <button class="pillBtn" id="adminLoginBtn" type="button"><i class="fa-solid fa-right-to-bracket"></i>Login</button>
+          </div>
+          <div class="adminMsg" id="adminMsg" aria-live="polite"></div>
+        </div>
+
+        <div id="adminPanelView" style="display:none;">
+          <div class="adminPanelTop">
+            <div class="adminPills">
+              <button class="miniBtn" id="adminTabLogs" type="button"><i class="fa-solid fa-triangle-exclamation"></i>Logs</button>
+              <button class="miniBtn" id="adminTabConsole" type="button"><i class="fa-solid fa-terminal"></i>Console</button>
+            </div>
+            <div class="adminPills">
+              <button class="miniBtn" id="adminExportBtn" type="button"><i class="fa-solid fa-file-export"></i>Export</button>
+              <button class="miniBtn" id="adminClearBtn" type="button"><i class="fa-solid fa-broom"></i>Clear</button>
+              <button class="miniBtn" id="adminLogoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i>Logout</button>
+            </div>
+          </div>
+
+          <div class="adminPane" id="adminLogsPane">
+            <div class="adminList" id="adminLogList"></div>
+          </div>
+
+          <div class="adminPane" id="adminConsolePane" style="display:none;">
+            <div class="adminConsoleRow">
+              <input class="adminConsoleInput" id="adminConsoleInput" type="text" placeholder="Type JavaScript and press Enter" spellcheck="false" autocomplete="off" />
+              <button class="iconBtn" id="adminRunBtn" type="button" title="Run"><i class="fa-solid fa-play"></i></button>
+            </div>
+            <div class="adminConsoleOut" id="adminConsoleOut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>
