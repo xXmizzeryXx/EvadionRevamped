@@ -2,6 +2,9 @@
 const STORAGE_KEY = 'evadionrv_tabs_v1';
 const BOOKMARKS_KEY = 'evadionrv_bookmarks_v1';
 const HISTORY_KEY = 'evadionrv_history_v1';
+const UV_READY_KEY = 'evadionrv_uv_ready_v1';
+
+let uvReady = false;
 
 function updateClock() {
   const now = new Date();
@@ -38,6 +41,61 @@ function normalize(input) {
     return 'https://' + v;
   }
   return 'https://www.google.com/search?q=' + encodeURIComponent(v);
+}
+
+function getUvConfig() {
+  return (typeof self !== 'undefined' && self.__uv$config) || (typeof window !== 'undefined' && window.__uv$config) || null;
+}
+
+function uvEncodeUrl(url) {
+  const cfg = getUvConfig();
+  if (!cfg || !cfg.prefix || typeof cfg.encodeUrl !== 'function') return null;
+  try {
+    return cfg.prefix + cfg.encodeUrl(url);
+  } catch {
+    return null;
+  }
+}
+
+function uvDecodeUrl(url) {
+  const cfg = getUvConfig();
+  if (!cfg || !cfg.prefix || typeof cfg.decodeUrl !== 'function') return null;
+
+  try {
+    const parsed = new URL(url, window.location.origin);
+    const prefixPath = new URL(cfg.prefix, window.location.origin).pathname;
+    if (!parsed.pathname.startsWith(prefixPath)) return null;
+    const encoded = parsed.pathname.slice(prefixPath.length) + parsed.search;
+    return cfg.decodeUrl(encoded);
+  } catch {
+    return null;
+  }
+}
+
+function toFrameUrl(url) {
+  if (!url || isLocalPath(url) || !uvReady) return url;
+  return uvEncodeUrl(url) || url;
+}
+
+async function ensureUvServiceWorker() {
+  if (uvReady) return true;
+  if (!('serviceWorker' in navigator)) return false;
+
+  const cfg = getUvConfig();
+  if (!cfg?.prefix) return false;
+
+  try {
+    const scope = new URL(cfg.prefix, window.location.origin).pathname;
+    const reg = await navigator.serviceWorker.register('/sw.js', { scope });
+    await navigator.serviceWorker.ready;
+    uvReady = !!reg;
+    try { localStorage.setItem(UV_READY_KEY, uvReady ? '1' : '0'); } catch {}
+    return uvReady;
+  } catch {
+    uvReady = false;
+    try { localStorage.setItem(UV_READY_KEY, '0'); } catch {}
+    return false;
+  }
 }
 
 function safeHost(url) {
@@ -704,7 +762,7 @@ function navigateActive(url, silentOmni) {
 
   saveTabs();
   renderTabs();
-  el.frame.src = url;
+  el.frame.src = toFrameUrl(url);
 
   addHistory(active.url, active.title);
 }
@@ -776,9 +834,10 @@ function moveTab(fromId, toId) {
   renderTabs();
 }
 
-function goFromOmni() {
+async function goFromOmni() {
   const active = state.tabs.find(x => x.id === state.activeId);
   if (!active) return;
+  await ensureUvServiceWorker();
   navigateActive(normalize(el.omni.value));
 }
 
@@ -976,7 +1035,8 @@ function syncAdminViews() {
 }
 
 /* Wiring */
-function openTab(url) {
+async function openTab(url) {
+  await ensureUvServiceWorker();
   if (isLocalPath(url)) createTab(url);
   else createTab(normalize(url));
 }
@@ -1063,7 +1123,8 @@ function openTab(url) {
   if (el.goBtn) el.goBtn.addEventListener('click', goFromOmni);
   if (el.omni) el.omni.addEventListener('keydown', (e) => { if (e.key === 'Enter') goFromOmni(); });
 
-  if (el.newTabBtn) el.newTabBtn.addEventListener('click', () => {
+  if (el.newTabBtn) el.newTabBtn.addEventListener('click', async () => {
+    await ensureUvServiceWorker();
     createTab('https://www.google.com');
     el.omni.focus();
     el.omni.select();
@@ -1085,8 +1146,11 @@ function openTab(url) {
 
   if (el.homeBtn) el.homeBtn.addEventListener('click', closeAllTabsToHome);
 
-  if (el.urlInput) el.urlInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') createTab(normalize(el.urlInput.value));
+  if (el.urlInput) el.urlInput.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      await ensureUvServiceWorker();
+      createTab(normalize(el.urlInput.value));
+    }
   });
 
   if (el.frame) {
@@ -1098,17 +1162,19 @@ function openTab(url) {
 
       try {
         const href = el.frame.contentWindow.location.href;
-        if (href && href !== active.url) {
-          active.url = href;
-          if (href.includes('games.html')) {
+        const decodedHref = uvDecodeUrl(href);
+        const normalizedHref = decodedHref || href;
+        if (normalizedHref && normalizedHref !== active.url) {
+          active.url = normalizedHref;
+          if (normalizedHref.includes('games.html')) {
             active.title = 'Games';
             active.faIcon = '';
-          } else if (href.includes('movies.html')) {
+          } else if (normalizedHref.includes('movies.html')) {
             active.title = 'Movies';
             active.faIcon = '';
           } else {
-            active.title = safeHost(href);
-            active.faIcon = (!isLocalPath(href)) ? (resolveFaIconForUrl(href) || active.faIcon || '') : '';
+            active.title = safeHost(normalizedHref);
+            active.faIcon = (!isLocalPath(normalizedHref)) ? (resolveFaIconForUrl(normalizedHref) || active.faIcon || '') : '';
           }
           active.favicon = null;
           updated = true;
@@ -1166,8 +1232,10 @@ function runSelfTests() {
   } catch {}
 }
 
-(function boot() {
+(async function boot() {
   runSelfTests();
+  try { uvReady = localStorage.getItem(UV_READY_KEY) === '1'; } catch {}
+  await ensureUvServiceWorker();
   loadHistory();
   loadBookmarks();
   renderBookmarks();
